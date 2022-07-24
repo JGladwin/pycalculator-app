@@ -15,8 +15,8 @@ class Calculator():
         self.window.title("Calculator")
         self.window.geometry("300x500")
 
-        self.total_expr = "0"
-        self.current_expr = "0"
+        self.total_expr = ""
+        self.current_expr = ""
 
         self.display_frame = self.create_display_frame()
         self.total_label, self.label = self.create_display_labels()
@@ -67,22 +67,56 @@ class Calculator():
     def create_operator_buttons(self):
         i=0
         for operator, symbol in self.operations.items():
-            button = tk.Button(self.button_frame, text=operator, bg=SAKURA_PINK_BORDER, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE, borderwidth=0)
+            button = tk.Button(self.button_frame, text=operator, bg=SAKURA_PINK_BORDER, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE, borderwidth=0, command=lambda x=operator: self.append_operator(x))
             button.grid(row=i, column=4, sticky=tk.NSEW)
             i+=1
             
     def create_clear_button(self):
-            button = tk.Button(self.button_frame, text="C", bg=SAKURA_PINK_BORDER, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE, borderwidth=0)
+            button = tk.Button(self.button_frame, text="C", bg=SAKURA_PINK_BORDER, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE, borderwidth=0, command=self.clear)
             button.grid(row=0, column=1, columnspan=3, sticky=tk.NSEW)
 
     def create_equals_button(self):
-            button = tk.Button(self.button_frame, text="=", bg=SAKURA_PINK_BORDER, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE, borderwidth=0)
+            button = tk.Button(self.button_frame, text="=", bg=SAKURA_PINK_BORDER, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE, borderwidth=0, command=self.evaluate)
             button.grid(row=4, column=3, columnspan=2, sticky=tk.NSEW)
 
     def create_digit_buttons(self):
         for digit, grid_value in self.digits.items():
-            button = tk.Button(self.button_frame, text=str(digit), bg=SAKURA_PINK_BORDER, fg=LABEL_COLOR, font=DIGIT_FONT_STYLE, borderwidth=0)
+            button = tk.Button(self.button_frame, text=str(digit), bg=SAKURA_PINK_BORDER, fg=LABEL_COLOR, font=DIGIT_FONT_STYLE, borderwidth=0, command=lambda x=digit: self.add_to_expr(x))
             button.grid(row=grid_value[0], column=grid_value[1], sticky=tk.NSEW)
+
+    #Implementing functionality from here
+
+    def add_to_expr(self, value):
+        self.current_expr += str(value)
+        self.update_label()
+
+    def update_total_label(self):
+        self.total_label.config(text=self.total_expr)
+
+    def update_label(self):
+        self.label.config(text=self.current_expr)
+
+    def append_operator(self, operator):
+        self.current_expr += operator
+        self.total_expr += self.current_expr
+        self.current_expr = ""
+        self.update_total_label()
+        self.update_label()
+
+    def clear(self):
+        self.current_expr = ""
+        self.total_expr = ""
+        self.update_label()
+        self.update_total_label()
+
+    def evaluate(self):
+        self.total_expr += self.current_expr
+        self.update_total_label()
+
+        self.current_expr = str(eval(self.total_expr))
+
+        self.total_expr = ""
+        self.update_label()
 
     def run(self):
         self.window.mainloop()
