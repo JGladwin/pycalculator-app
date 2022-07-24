@@ -41,6 +41,7 @@ class Calculator():
         self.create_digit_buttons()
         self.create_operator_buttons()
         self.create_special_buttons()
+        self.bind_keys()
 
     def create_special_buttons(self):
         self.create_clear_button()
@@ -108,7 +109,6 @@ class Calculator():
 
     def update_label(self):
         self.label.config(text=self.current_expr[:9])
-        print(self.current_expr)
 
     def append_operator(self, operator):
         self.current_expr += operator
@@ -127,10 +127,16 @@ class Calculator():
         self.total_expr += self.current_expr
         self.update_total_label()
 
-        self.current_expr = str(eval(self.total_expr))
+        try:
+            self.current_expr = str(eval(self.total_expr))
 
-        self.total_expr = ""
-        self.update_label()
+            self.total_expr = ""
+
+        except Exception as e:
+            self.current_expr = "Error"
+
+        finally:
+            self.update_label()
 
     def square(self):
         self.current_expr = str(eval(f"{self.current_expr}**2"))
@@ -139,6 +145,17 @@ class Calculator():
     def sqrt(self):
         self.current_expr = str(eval(f"{self.current_expr}**0.5"))
         self.update_label()
+        
+    def bind_keys(self):
+        self.window.bind("<Return>", lambda event: self.evaluate())
+        self.window.bind("=", lambda event: self.evaluate())
+
+        for key in self.digits:
+            self.window.bind(str(key), lambda event, digit=key: self.add_to_expr(digit))
+
+        for key in self.operations:
+            self.window.bind(key, lambda event, operator=key: self.append_operator(operator))
+
 
     def run(self):
         self.window.mainloop()
